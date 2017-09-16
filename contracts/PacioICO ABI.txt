@@ -1,0 +1,86 @@
+PacioICO
+
+Functions in alpha order - 25 of them
+---------
+Allocate(address,uint256,uint256)
+Burn(address,uint256)
+ChangeOwner(address)
+ChangeTokenContractOwner(address)
+Destroy(uint256)
+ForwardFunds(address)
+IcoCompleted()
+Mint(uint256)
+PIOE()
+Pause()
+PauseTokenContract()
+PrepareToStart(string,uint256,uint256,uint256)
+Resume()
+ResumeTokenContract()
+SetFFSettings(address,address,uint256,uint256)
+SetPicosPerEther(uint256)
+VestFFTokens(uint256,uint256)
+name()
+ownerA()
+pausedB()
+picosCap()
+picosPerEther()
+picosSold()
+startTime()
+weiRaised()
+
+ABI
+[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"picos","type":"uint256"}],"name":"Mint","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"ResumeTokenContract","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"picosCap","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"picosPerEther","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"weiRaised","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"Resume","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"PauseTokenContract","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"vWalletA","type":"address"}],"name":"ForwardFunds","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"Pause","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"vFounderTokensA","type":"address"},{"name":"vFoundationTokensA","type":"address"},{"name":"vFounderTokensAllocation","type":"uint256"},{"name":"vFoundationTokensAllocation","type":"uint256"}],"name":"SetFFSettings","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"picosSold","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"startTime","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"vNameS","type":"string"},{"name":"vStartTime","type":"uint256"},{"name":"vPicosCap","type":"uint256"},{"name":"vPicosPerEther","type":"uint256"}],"name":"PrepareToStart","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"PIOE","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"src","type":"address"},{"name":"picos","type":"uint256"}],"name":"Burn","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"IcoCompleted","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"vPicosPerEther","type":"uint256"}],"name":"SetPicosPerEther","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"picos","type":"uint256"}],"name":"Destroy","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"ownerA","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"vSupplierA","type":"address"},{"name":"wad","type":"uint256"},{"name":"picos","type":"uint256"}],"name":"Allocate","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"vFounderTokensVesting","type":"uint256"},{"name":"vFoundationTokensVesting","type":"uint256"}],"name":"VestFFTokens","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"vNewOwnerA","type":"address"}],"name":"ChangeTokenContractOwner","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"vNewOwnerA","type":"address"}],"name":"ChangeOwner","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"pausedB","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function"},{"inputs":[],"payable":false,"type":"constructor"},{"payable":true,"type":"fallback"},{"anonymous":false,"inputs":[{"indexed":false,"name":"Name","type":"string"},{"indexed":false,"name":"StartTime","type":"uint256"},{"indexed":false,"name":"PicosCap","type":"uint256"}],"name":"LogPrepareToStart","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"PicosPerEther","type":"uint256"}],"name":"LogPicosPerEther","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"Purchaser","type":"address"},{"indexed":false,"name":"SaleWei","type":"uint256"},{"indexed":false,"name":"Picos","type":"uint256"}],"name":"LogSale","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"Supplier","type":"address"},{"indexed":false,"name":"SuppliedWei","type":"uint256"},{"indexed":false,"name":"Picos","type":"uint256"}],"name":"LogAllocate","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"WeiRaised","type":"uint256"},{"indexed":false,"name":"PicosSold","type":"uint256"}],"name":"LogSaleCapReached","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"PreviousOwner","type":"address"},{"indexed":false,"name":"NewOwner","type":"address"}],"name":"LogOwnerChange","type":"event"},{"anonymous":false,"inputs":[],"name":"LogPaused","type":"event"},{"anonymous":false,"inputs":[],"name":"LogResumed","type":"event"}]
+
+ABI formatted and rearranged
+[
+constructor {"inputs":[],"payable":false,"type":"constructor"},
+
+Getter functions for public state variables
+name          {"constant":true, "inputs":[], "name":"name",         "outputs":[{"name":"","type":"string"}], "payable":false,"type":"function"},
+picosCap      {"constant":true, "inputs":[], "name":"picosCap",     "outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},
+picosPerEther {"constant":true, "inputs":[], "name":"picosPerEther","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},
+weiRaised     {"constant":true, "inputs":[], "name":"weiRaised",    "outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},
+picosSold     {"constant":true, "inputs":[], "name":"picosSold",    "outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},
+startTime     {"constant":true, "inputs":[], "name":"startTime",    "outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},
+PIOE          {"constant":true, "inputs":[], "name":"PIOE",         "outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},
+ownerA        {"constant":true, "inputs":[], "name":"ownerA",       "outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},
+pausedB       {"constant":true, "inputs":[], "name":"pausedB",      "outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function"},
+
+Control
+Pause       {"constant":false,"inputs":[], "name":"Pause","outputs":[],"payable":false,"type":"function"},
+Resume      {"constant":false,"inputs":[], "name":"Resume","outputs":[],"payable":false,"type":"function"},
+ChangeOwner {"constant":false,"inputs":[{"name":"vNewOwnerA","type":"address"}], "name":"ChangeOwner","outputs":[],"payable":false,"type":"function"},
+
+Settings
+PrepareToStart   {"constant":false,"inputs":[{"name":"vNameS","type":"string"},{"name":"vStartTime","type":"uint256"},{"name":"vPicosCap","type":"uint256"},{"name":"vPicosPerEther","type":"uint256"}], "name":"PrepareToStart","outputs":[],"payable":false,"type":"function"},
+SetPicosPerEther {"constant":false,"inputs":[{"name":"vPicosPerEther","type":"uint256"}], "name":"SetPicosPerEther","outputs":[],"payable":false,"type":"function"},
+
+Action
+Allocate         {"constant":false,"inputs":[{"name":"vSupplierA","type":"address"},{"name":"wad","type":"uint256"},{"name":"picos","type":"uint256"}], "name":"Allocate","outputs":[],"payable":false,"type":"function"},
+ForwardFunds     {"constant":false,"inputs":[{"name":"vWalletA","type":"address"}],"name":"ForwardFunds","outputs":[],"payable":false,"type":"function"},
+Fallback         {"payable":true, "type":"fallback"}, <=== only payable fn
+
+Control Token Contract
+ChangeTokenContractOwner {"constant":false,"inputs":[{"name":"vNewOwnerA","type":"address"}], "name":"ChangeTokenContractOwner","outputs":[],"payable":false,"type":"function"},
+PauseTokenContract       {"constant":false,"inputs":[], "name":"PauseTokenContract","outputs":[],"payable":false,"type":"function"},
+ResumeTokenContract      {"constant":false,"inputs":[], "name":"ResumeTokenContract","outputs":[],"payable":false,"type":"function"},
+
+Pass through to Token Contract for "Manual" ops
+Mint                {"constant":false,"inputs":[{"name":"picos","type":"uint256"}], "name":"Mint", "outputs":[],"payable":false,"type":"function"},
+SetFFSettings       {"constant":false,"inputs":[{"name":"vFounderTokensA","type":"address"},{"name":"vFoundationTokensA","type":"address"},{"name":"vFounderTokensAllocation","type":"uint256"},{"name":"vFoundationTokensAllocation","type":"uint256"}], "name":"SetFFSettings","outputs":[],"payable":false,"type":"function"},
+IcoCompleted        {"constant":false,"inputs":[], "name":"IcoCompleted","outputs":[],"payable":false,"type":"function"},
+VestFFTokens        {"constant":false,"inputs":[{"name":"vFounderTokensVesting","type":"uint256"},{"name":"vFoundationTokensVesting","type":"uint256"}], "name":"VestFFTokens","outputs":[],"payable":false,"type":"function"},
+Burn                {"constant":false,"inputs":[{"name":"src","type":"address"},{"name":"picos","type":"uint256"}], "name":"Burn","outputs":[],"payable":false,"type":"function"},
+Destroy             {"constant":false,"inputs":[{"name":"picos","type":"uint256"}], "name":"Destroy","outputs":[],"payable":false,"type":"function"},
+
+
+Events
+LogPrepareToStart {"anonymous":false,"inputs":[{"indexed":false,"name":"Name","type":"string"},{"indexed":false,"name":"StartTime","type":"uint256"},{"indexed":false,"name":"PicosCap","type":"uint256"}],"name":"LogPrepareToStart","type":"event"},
+LogPicosPerEther  {"anonymous":false,"inputs":[{"indexed":false,"name":"PicosPerEther","type":"uint256"}],"name":"LogPicosPerEther","type":"event"},
+LogSale           {"anonymous":false,"inputs":[{"indexed":true,"name":"Purchaser","type":"address"},{"indexed":false,"name":"SaleWei","type":"uint256"},{"indexed":false,"name":"Picos","type":"uint256"}],"name":"LogSale","type":"event"},
+LogAllocate       {"anonymous":false,"inputs":[{"indexed":true,"name":"Supplier","type":"address"},{"indexed":false,"name":"SuppliedWei","type":"uint256"},{"indexed":false,"name":"Picos","type":"uint256"}],"name":"LogAllocate","type":"event"},
+LogSaleCapReached {"anonymous":false,"inputs":[{"indexed":false,"name":"WeiRaised","type":"uint256"},{"indexed":false,"name":"PicosSold","type":"uint256"}],"name":"LogSaleCapReached","type":"event"},
+LogOwnerChange    {"anonymous":false,"inputs":[{"indexed":true,"name":"PreviousOwner","type":"address"},{"indexed":false,"name":"NewOwner","type":"address"}],"name":"LogOwnerChange","type":"event"},
+LogPaused         {"anonymous":false,"inputs":[],"name":"LogPaused","type":"event"},
+LogResumed        {"anonymous":false,"inputs":[],"name":"LogResumed","type":"event"}
+]
