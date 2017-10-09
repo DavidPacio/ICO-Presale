@@ -1,14 +1,18 @@
 // PacioToken.sol 2017.08.22 started
 
-// The Pacio Token named PIOE for the Ethereum version
+/* The Pacio Token named PIOE for the Ethereum version
 
-// Following the EIP20 standard: https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md
+Follows the EIP20 standard: https://github.com/frozeman/EIPs/blob/94bc4311e889c2c58c561c074be1483f48ac9374/EIPS/eip-20-token-standard.md
+
+2017.10.08 Changed to suit direct deployment rather than being created via the PacioICO constructor, so that Etherscan can recognise it.
+
+*/
 
 pragma solidity ^0.4.15;
 
-import "./EIP20Token.sol";
+import "./ERC20Token.sol";
 
-contract PacioToken is EIP20Token {
+contract PacioToken is ERC20Token {
   // enum NFF {  // Founders/Foundation enum
   //   Founders, // 0 Pacio Founders
   //   Foundatn} // 1 Pacio Foundation
@@ -34,16 +38,28 @@ contract PacioToken is EIP20Token {
   event LogBurn(address Src, uint Picos);
   event LogDestroy(uint Picos);
 
-  // Constructor not payable
-  // -----------
-  function PacioToken() {
-    founderTokensAllocated    = 10**20; // 10% or 100 million = 1e20 Picos
-    foundationTokensAllocated = 10**20; // 10% or 100 million = 1e20 Picos This call sets tokensAvailable
-    Mint(10**21);                       // 1 Billion PIOEs    = 1e21 Picos, all minted)
-  }
+  // No Constructor
+  // --------------
 
   // Initialisation/Settings Methods IsOwner but not IsActive
   // -------------------------------
+
+  // Initialise()
+  // To be called by deployment owner to change ownership to the sale contract, and do the initial allocations and minting.
+  // Can only be called once. If the sale contract changes but the token contract stays the same then ChangeOwner() can be called via PacioICO.ChangeTokenContractOwner() to change the owner to the new contract
+  function Initialise(address vNewOwnerA) { // IsOwner c/o the super.ChangeOwner() call
+    require(totalSupply == 0);          // can only be called once
+    super.ChangeOwner(vNewOwnerA);      // includes an IsOwner check so don't need to repeat it here
+    founderTokensAllocated    = 10**20; // 10% or 100 million = 1e20 Picos
+    foundationTokensAllocated = 10**20; // 10% or 100 million = 1e20 Picos This call sets tokensAvailable
+    // Equivalent of Mint(10**21) which can't be used here as msg.sender is the old (deployment) owner // 1 Billion PIOEs    = 1e21 Picos, all minted)
+    totalSupply           = 10**21; // 1 Billion PIOEs    = 1e21 Picos, all minted)
+    iTokensOwnedM[ownerA] = 10**21;
+    tokensAvailable       = 8*(10**20); // 800 million [String: '800000000000000000000'] s: 1, e: 20, c: [ 8000000 ] }
+    // From the EIP20 Standard: A token contract which creates new tokens SHOULD trigger a Transfer event with the _from address set to 0x0 when tokens are created.
+    Transfer(0x0, ownerA, 10**21); // log event 0x0 from == minting
+  }
+
   // Mint()
   // PacioICO() includes a Mint() fn to allow manual calling of this if necessary e.g. re full ICO going over the cap
   function Mint(uint picos) IsOwner {
@@ -57,8 +73,16 @@ contract PacioToken is EIP20Token {
   // PrepareForSale()
   // stops transfers and allows purchases
   function PrepareForSale() IsOwner {
-    require (!icoCompleteB); // Cannot start selling again once ICO has been set to completed
-    saleInProgressB = true;  // stops transfers
+    require(!icoCompleteB); // Cannot start selling again once ICO has been set to completed
+    saleInProgressB = true; // stops transfers
+  }
+
+  // ChangeOwner()
+  // To be called by owner to change the token contract owner, expected to be to a sale contract
+  // Transfers any minted tokens from old to new sale contract
+  function ChangeOwner(address vNewOwnerA) { // IsOwner c/o the super.ChangeOwner() call
+    transfer(vNewOwnerA, iTokensOwnedM[ownerA]); // includes checks
+    super.ChangeOwner(vNewOwnerA); // includes an IsOwner check so don't need to repeat it here
   }
 
   // Public Constant Methods
@@ -70,7 +94,7 @@ contract PacioToken is EIP20Token {
   // Issue()
   // Transfers picos tokens to dst to issue them. IsOwner because this is expected to be called from the token sale contract
   function Issue(address dst, uint picos) IsOwner IsActive returns (bool) {
-    require (saleInProgressB     // Sale is in progress
+    require(saleInProgressB      // Sale is in progress
          && iTokensOwnedM[ownerA] >= picos // Owner has the tokens available
       // && picos > 0            // Non-zero issue No need to check for this
          && dst != address(this) // Not issuing to this token contract
@@ -98,7 +122,7 @@ contract PacioToken is EIP20Token {
   // IcoCompleted()
   // To be be called manually via PacioICO after full ICO ends. Could be called before cap is reached if ....
   function IcoCompleted() IsOwner IsActive {
-    require (!icoCompleteB);
+    require(!icoCompleteB);
     saleInProgressB = false; // allows transfers
     icoCompleteB    = true;
     LogIcoCompleted();
@@ -123,7 +147,7 @@ contract PacioToken is EIP20Token {
   // No separate event as the LogIssue event can be used to trace vesting transfers
   // To be be called manually via PacioICO
   function VestFFTokens(uint vFounderTokensVesting, uint vFoundationTokensVesting) IsOwner IsActive {
-    require (icoCompleteB); // ICO must be completed before vesting can occur. djh?? Add other time restriction?
+    require(icoCompleteB); // ICO must be completed before vesting can occur. djh?? Add other time restriction?
     if (vFounderTokensVesting > 0) {
       assert(pFounderToksA != address(0)); // Founders token address must have been set
       assert((founderTokensVested  = add(founderTokensVested,          vFounderTokensVesting)) <= founderTokensAllocated);
@@ -147,7 +171,7 @@ contract PacioToken is EIP20Token {
   // For use when transferring issued PIOEs to PIOs
   // To be be called manually via PacioICO or from a new transfer contract to be written which is set to own this one
   function Burn(address src, uint picos) IsOwner IsActive {
-    require (icoCompleteB);
+    require(icoCompleteB);
     iTokensOwnedM[src] = subMaxZero(iTokensOwnedM[src], picos);
     tokensIssued       = subMaxZero(tokensIssued, picos);
     totalSupply        = subMaxZero(totalSupply,  picos);
@@ -159,7 +183,7 @@ contract PacioToken is EIP20Token {
   // For use when transferring unissued PIOEs to PIOs
   // To be be called manually via PacioICO or from a new transfer contract to be written which is set to own this one
   function Destroy(uint picos) IsOwner IsActive {
-    require (icoCompleteB);
+    require(icoCompleteB);
     totalSupply     = subMaxZero(totalSupply,     picos);
     tokensAvailable = subMaxZero(tokensAvailable, picos);
     LogDestroy(picos);

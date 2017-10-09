@@ -1,8 +1,8 @@
 /* Owned.sol
 
-2017.03.04 Originally created. On 72nd birthday!!
+2017.03.04 Originally created
 2017.08.16 Brought into use for Pacio token sale use
-2017.08.22 Logging of
+2017.08.22 Logging revised
 
 Owned is a Base Contract for contracts that are:
 • "owned"

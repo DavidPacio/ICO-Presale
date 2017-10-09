@@ -11,79 +11,78 @@ No end date - just cap or pause
 
 Decisions
 ---------
-No auto transfer to wallet. Allow funds to accumulate in this contract and be transferred out to the Pacio walltet by the owner calling ForwardFunds(address vWalletA)
-
 No threshold
 
-Will need some Ether in an account to cover deployment gas cost and the cost of running functions manually including ForwardFunds()
-
+2017.10.07 Removed ForwardFunds() and made forward happen on each receipt
+           Changed from use of fallback fn to specific Buy() fn and made fallback revert, re best practices re fallback fn use.
+           Since fallback functions can be misused or abused, Vitalik Buterin suggested "establishing as a convention that fallback functions should generally not be used except in very specific cases."
+2017.10.08 Changed to deploy PacioToken contract directly rather than create it via the constructor here, and then to pass the address to  PrepareToStart() as part of getting Etherscan te recognise the Token contract
 
 */
 
 pragma solidity ^0.4.15;
 
-import "./PacioToken.sol"; // which imports Owned.sol, DSMath.sol, EIP20Token.sol
+import "./PacioToken.sol"; // which imports Owned.sol, DSMath.sol, ERC20Token.sol
 
 contract PacioICO is Owned, DSMath {
-  string public name;
-  uint public startTime;     // start time of the sale
-  uint public picosCap;      // Cap for the sale
-  uint public picosSold;     // Cumulative Picos sold which should == PIOE.pTokensIssued
-  uint public picosPerEther; // 3,000,000,000,000,000 for ETH = $300 and target PIOE price = $0.10
-  uint public weiRaised;     // cumulative wei raised
-  PacioToken public PIOE;    // the token contract
-
+  string public name;         // Contract name
+  uint public  startTime;     // start time of the sale
+  uint public  picosCap;      // Cap for the sale
+  uint public  picosSold;     // Cumulative Picos sold which should == PIOE.pTokensIssued
+  uint public  picosPerEther; // 3,000,000,000,000,000 for ETH = $300 and target PIOE price = $0.10
+  uint public  weiRaised;     // cumulative wei raised
+  PacioToken public PIOE;     // the Pacio token contract
+  address private pPCwalletA; // address of the Pacio Core wallet to receive funds raised
 
   // Constructor not payable
   // -----------
   //
   function PacioICO() {
-    PIOE    = new PacioToken(); // Deploy the token contract, owned by this contract. If a second contract is used for the full ICO, the address of the
     pausedB = true; // start paused
   }
 
   // Events
   // ------
-  event LogPrepareToStart(string Name, uint StartTime, uint PicosCap);
-  event LogPicosPerEther(uint PicosPerEther);
+  event LogPrepareToStart(string Name, uint StartTime, uint PicosCap, PacioToken TokenContract, address PCwallet);
+  event LogSetPicosPerEther(uint PicosPerEther);
+  event LogChangePCWallet(address PCwallet);
   event LogSale(address indexed Purchaser, uint SaleWei, uint Picos);
   event LogAllocate(address indexed Supplier, uint SuppliedWei, uint Picos);
   event LogSaleCapReached(uint WeiRaised, uint PicosSold);
 
   // PrepareToStart()
+  // --------------
   // To be called manually by owner just prior to the start of the presale or the full ICO
-  function PrepareToStart(string vNameS, uint vStartTime, uint vPicosCap, uint vPicosPerEther) IsOwner {
-    name      = vNameS;            // Pacio Presale | Pacio Token Sale
-    startTime = vStartTime;
-    picosCap  = vPicosCap;         // Cap for the sale, 10 Million PIOEs = 10,000,000,000,000,000,000 = 10**19 Picos for the Presale
-    PIOE.PrepareForSale(); // stops transfers
-    pausedB  = false;
-    LogPrepareToStart(vNameS, vStartTime, vPicosCap);
+  // Can also be called by owner to adjust settings. With care!!
+  function PrepareToStart(string vNameS, uint vStartTime, uint vPicosCap, uint vPicosPerEther, PacioToken vTokenA, address vPCwalletA) IsOwner {
+    require(vTokenA != address(0)
+         && vPCwalletA != address(0));
+    name       = vNameS;     // Pacio Presale | Pacio Token Sale
+    startTime  = vStartTime;
+    picosCap   = vPicosCap;  // Cap for the sale, 20 Million PIOEs = 20,000,000,000,000,000,000 = 20**19 Picos for the Presale
+    PIOE       = vTokenA;    // The token contract
+    pPCwalletA = vPCwalletA; // Pacio Code wallet to receive funds
+    pausedB    = false;
+    PIOE.PrepareForSale();   // stops transfers
+    LogPrepareToStart(vNameS, vStartTime, vPicosCap, vTokenA, vPCwalletA);
     SetPicosPerEther(vPicosPerEther);
   }
-
-  // SetPicosPerEther()
-  // Fn to be called daily (hourly?) or on significant Ether price movement to set the Pico price
-  function SetPicosPerEther(uint vPicosPerEther) IsOwner {
-    picosPerEther = vPicosPerEther; // 3,000,000,000,000,000 for ETH = $300 and target PIOE price = $0.10
-    LogPicosPerEther(picosPerEther);
-  }
-
 
   // Public Constant Methods
   // -----------------------
   // None. Used public variables instead which result in getter functions
 
-  // State changing public methods made pause-able
-  // -----------------------------
+  // State changing public method made pause-able
+  // ----------------------------
 
-  // Fallback buys
-  // Will need more than the default gas to run
-  function () payable IsActive {
-    require (now >= startTime);       // sale is running (in conjunction with the IsActive test)
-    require (msg.value >= 0.1 ether); // sent >= the min
+  // Buy()
+  // Fn to be called to buy PIOEs
+  function Buy() payable IsActive {
+    require(now >= startTime);       // sale is running (in conjunction with the IsActive test)
+    require(msg.value >= 0.1 ether); // sent >= the min
     uint picos = mul(picosPerEther, msg.value) / 10**18; // Picos = Picos per ETH * Wei / 10^18 <=== calc for integer arithmetic as in Solidity
     weiRaised = add(weiRaised, msg.value);
+    pPCwalletA.transfer(this.balance); // throws on failure
     PIOE.Issue(msg.sender, picos);
     LogSale(msg.sender, msg.value, picos);
     picosSold += picos; // ok wo overflow protection as PIOE.Issue() would have thrown on overflow
@@ -97,6 +96,33 @@ contract PacioICO is Owned, DSMath {
 
   // Functions to be called Manually
   // ===============================
+  // SetPicosPerEther()
+  // Fn to be called daily (hourly?) or on significant Ether price movement to set the Pico price
+  function SetPicosPerEther(uint vPicosPerEther) IsOwner {
+    picosPerEther = vPicosPerEther; // 3,000,000,000,000,000 for ETH = $300 and target PIOE price = $0.10
+    LogSetPicosPerEther(picosPerEther);
+  }
+
+  // ChangePCWallet()
+  // Fn to be called to change the PC Wallet to receive funds raised. This is set initially via PrepareToStart()
+  function ChangePCWallet(address vPCwalletA) IsOwner {
+    require(vPCwalletA != address(0));
+    pPCwalletA = vPCwalletA;
+    LogChangePCWallet(vPCwalletA);
+  }
+
+  // Allocate()
+  // Allocate in lieu for goods or services or fiat supplied valued at wad wei in return for picos issued. Not payable
+  // no picosCap check
+  // wad is only for logging
+  function Allocate(address vSupplierA, uint wad, uint picos) IsOwner IsActive {
+     PIOE.Issue(vSupplierA, picos);
+    LogAllocate(vSupplierA, wad, picos);
+    picosSold += picos; // ok wo overflow protection as PIOE.Issue() would have thrown on overflow
+  }
+
+  // Token Contract Functions to be called Manually via Owner calls to ICO Contract
+  // ==============================================================================
   // ChangeTokenContractOwner()
   // To be called manually if a new sale contract is deployed to change the owner of the PacioToken contract to it.
   // Expects the sale contract to have been paused
@@ -106,7 +132,7 @@ contract PacioICO is Owned, DSMath {
     PIOE.ChangeOwner(vNewOwnerA);
   }
 
-  // PauseTokenContract()`
+  // PauseTokenContract()
   // To be called manually to pause the token contract
   function PauseTokenContract() IsOwner {
     PIOE.Pause();
@@ -132,23 +158,6 @@ contract PacioICO is Owned, DSMath {
   function IcoCompleted() IsOwner {
     require(pausedB);
     PIOE.IcoCompleted();
-  }
-
-  // Allocate()
-  // Allocate in lieu for goods or services supplied valued at wad wei in return for picos issued. Not payable
-  // no picosCap check
-  function Allocate(address vSupplierA, uint wad, uint picos) IsOwner IsActive {
-     PIOE.Issue(vSupplierA, picos);
-    LogAllocate(vSupplierA, wad, picos);
-    picosSold += picos; // ok wo overflow protection as PIOE.Issue() would have thrown on overflow
-  }
-
-  // ForwardFunds()
-  // Send contract balance to the passed fund collection wallet
-  // Allow owner to do this even if not active
-  function ForwardFunds(address vWalletA) IsOwner {
-    require (this.balance > 0);
-    vWalletA.transfer(this.balance); // throws on failure
   }
 
   // SetFFSettings()
@@ -182,5 +191,13 @@ contract PacioICO is Owned, DSMath {
     PIOE.Destroy(picos);
   }
 
-} // End PacioToken contract
+  // Fallback function
+  // =================
+  // No sending ether to this contract!
+  // Not payable so trying to send ether will throw
+  function() {
+    revert(); // reject any attempt to access the token contract other than via the defined methods with their testing for valid access
+  }
+
+} // End PacioICO contract
 
